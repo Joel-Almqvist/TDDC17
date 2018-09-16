@@ -55,7 +55,6 @@ class MyAgentState {
                     break;
                 case MyAgentState.EAST:
                     agent_x_position++;
-                    // hej
                     break;
                 case MyAgentState.SOUTH:
                     agent_y_position++;
