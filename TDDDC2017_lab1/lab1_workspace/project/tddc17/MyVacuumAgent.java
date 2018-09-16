@@ -192,11 +192,11 @@ class MyAgentProgram implements AgentProgram {
         }
         if (dirt) {
             state.updateWorld(state.agent_x_position, state.agent_y_position, state.DIRT);
-        } else {
+        } else if(!home){
             state.updateWorld(state.agent_x_position, state.agent_y_position, state.CLEAR);
         }
 
-        state.printWorldDebug();
+        //state.printWorldDebug();
 
         // Next action selection based on the percept value
         if (dirt) {
@@ -269,6 +269,15 @@ class MyAgentProgram implements AgentProgram {
         ArrayList<SquarePos> nextList = new ArrayList();
         System.out.println("current internal position: " + x + ", " + y);
         while (!searchList.isEmpty()) {
+        	
+            for (int i = 15; i < 25; i++) {
+                for (int j = 15; j < 25; j++) {
+                	System.out.print(room[i][j]);
+                    }
+                System.out.println("");
+            }
+        	
+        	
             for (SquarePos squarePos : searchList) {
                 if (squarePos.x - 1 >= 0) { //west
                     System.out.println("checking west");
