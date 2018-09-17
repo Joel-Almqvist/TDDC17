@@ -8,6 +8,7 @@ import aima.core.agent.State;
 import aima.core.agent.impl.*;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Random;
 
 import com.sun.media.jfxmedia.events.PlayerEvent;
@@ -66,8 +67,10 @@ class MyAgentState {
 	public static final int WEST = 3;
 	public int agent_direction = EAST;
 	
+	// CUSTOM FIELDS
 	public ArrayList<Node> path = new ArrayList<Node>();
 	public Node currentDestination = null;
+	public Node home = null;
 
 	MyAgentState() {
 		for (int i = 0; i < world.length; i++)
@@ -107,12 +110,103 @@ class MyAgentState {
 		ArrayList<Node> exploredSet = new ArrayList<Node>();
 		ArrayList<Node> exploringQueue = new ArrayList<Node>();
 		Node startNode = new Node(agent_x_position,agent_y_position, null);
-		Node finishNode;
+		Node finishNode = null;
+		boolean worldExplored = true;
 		exploringQueue.add(startNode);
-		while (true) {
+		while (!exploringQueue.isEmpty()) {
 			Node exploringNode = exploringQueue.get(0);
 			exploringQueue.remove(0);
 			if (world[exploringNode.x][exploringNode.y] == UNKNOWN && !exploringNode.equals(startNode)) {
+				finishNode = exploringNode;
+				worldExplored = false;
+				break;
+			}
+			// Neighbor below
+			if (world.length > exploringNode.y + 1
+					&& world[exploringNode.x][exploringNode.y + 1] != WALL) {
+				Node neighbor = exploringNode.copy(0, 1);
+				if (!exploredSet.contains(neighbor)) {
+					exploringQueue.add(neighbor);
+					exploredSet.add(neighbor);
+				}
+			}
+			// Neighbor above
+			if (exploringNode.y > 0 && world[exploringNode.x][exploringNode.y - 1] != WALL) {
+				Node neighbor = exploringNode.copy(0, -1);
+				if (!exploredSet.contains(neighbor)) {
+					exploringQueue.add(neighbor);
+					exploredSet.add(neighbor);
+				}
+			}
+			// Neighbor to the right
+			if (exploringNode.x -1 < world[0].length && 
+					world[exploringNode.x + 1][exploringNode.y] != WALL) {
+				Node neighbor = exploringNode.copy(1, 0);
+				if (!exploredSet.contains(neighbor)) {
+					exploringQueue.add(neighbor);
+					exploredSet.add(neighbor);
+				}
+
+			}
+			// Neighbor to the left
+			if (exploringNode.x > 0 && 
+					world[exploringNode.x - 1][exploringNode.y] != WALL) {
+				Node neighbor = exploringNode.copy(-1, 0);
+				if (!exploredSet.contains(neighbor)) {
+					exploringQueue.add(neighbor);
+					exploredSet.add(neighbor);
+				}
+
+			}
+		}
+
+		ArrayList<Node> path = new ArrayList<Node>();
+
+		//No reachable unexplored nodes found
+		if(worldExplored) {
+			if(!startNode.equals(home)) {
+				return generatePathHome();		
+			}
+			
+			else {
+				// Trying to step to our current position turns off the agent
+				path.add(startNode);
+				return path;
+			}
+			
+		
+		}
+		
+		while (true) {
+			path.add(finishNode);
+			if (finishNode.parent != null) {
+				finishNode = finishNode.parent;
+			} else {
+				break;
+			}
+		}
+		
+		// Remove our starting position from the path
+		path.remove(path.size()-1);
+
+		return path;
+	}
+	
+	/** A BFS search similar to generatePath but instead searches from Home to the agent's current position.
+	 * 
+	 * @return A list of nodes the agent must traverse before reaching the home destination. The
+	 * home node is included in the list.
+	 */
+	public ArrayList<Node> generatePathHome() {
+		ArrayList<Node> exploredSet = new ArrayList<Node>();
+		ArrayList<Node> exploringQueue = new ArrayList<Node>();
+		Node startNode = home;
+		Node finishNode = new Node(agent_x_position,agent_y_position, null);
+		exploringQueue.add(startNode);
+		while (!exploringQueue.isEmpty()) {
+			Node exploringNode = exploringQueue.get(0);
+			exploringQueue.remove(0);
+			if (exploringNode.equals(finishNode)) {
 				finishNode = exploringNode;
 				break;
 			}
@@ -165,17 +259,23 @@ class MyAgentState {
 			}
 		}
 		
-		// Remove our starting position from the path
-		path.remove(path.size()-1);
-
+		// Remove our starting position from the path since we don't want the agent to
+		// move to it
+		path.remove(0);
+		// Reverse the path so that its order is the same as the one created by generatePath()
+		Collections.reverse(path);
 		return path;
 	}
-
-	// Takes one action towards the goal node
+	
+	
+	/** Returns an action which helps the agent reach the goal and updates the agent's last_action 
+	 * and direction.
+	 * 
+	 * If the goal node is not a direct neighbor from the agent's current position the 
+	 * function returns NO_OP
+	 */
 	public Action stepTowardsPos(Node goal){
 		Node agentPos = new Node(agent_x_position, agent_y_position, null);
-		//System.out.println("start x = "+agentPos.x+" , y = "+agentPos.y);
-		//System.out.println("goal x = "+goal.x+" , y = "+goal.y);
 		if(goal.distanceTo(agentPos) > 1){
 			return NoOpAction.NO_OP;
 		}
@@ -378,7 +478,7 @@ class MyAgentProgram implements AgentProgram {
 		System.out.println("y=" + state.agent_y_position);
 		System.out.println("dir=" + state.agent_direction);
 
-		iterationCounter--;
+		//iterationCounter--;
 
 		if (iterationCounter == 0)
 			return NoOpAction.NO_OP;
@@ -418,19 +518,28 @@ class MyAgentProgram implements AgentProgram {
 		if (dirt)
 			state.updateWorld(state.agent_x_position, state.agent_y_position,
 					state.DIRT);
-		else
+		else if(!home)
 			state.updateWorld(state.agent_x_position, state.agent_y_position,
 					state.CLEAR);
 
 		state.printWorldDebug();
 
+		
+		if(home){
+			state.home = new Node(state.agent_x_position, state.agent_y_position, null);
+			state.updateWorld(state.agent_x_position, state.agent_y_position,
+					state.HOME);
+		}
+		
+		
 		// Next action selection based on the percept value
 		if (dirt) {
 			System.out.println("DIRT -> choosing SUCK action!");
 			state.agent_last_action = state.ACTION_SUCK;
 			return LIUVacuumEnvironment.ACTION_SUCK;
-		} else {
-			
+		} 
+		
+		else {
 			// Init
 			if(state.currentDestination == null) {
 				state.path = state.generatePath();
@@ -462,22 +571,8 @@ class MyAgentProgram implements AgentProgram {
 				state.currentDestination = state.path.get(state.path.size()-1);
 				state.path.remove(state.path.size()-1);
 			}
-			
-			if(true) return state.stepTowardsPos(state.currentDestination);
 			// Continue towards our goal
-			
-			if (bump) {
-				state.agent_last_action = state.ACTION_TURN_LEFT;
-				//state.agent_direction--;
-				//if(state.agent_direction == -1) state.agent_direction = 3;
-				state.updateDirection();
-				return LIUVacuumEnvironment.ACTION_TURN_LEFT;
-				// state.agent_last_action=state.ACTION_NONE;
-				// return NoOpAction.NO_OP;
-			} else {
-				state.agent_last_action = state.ACTION_MOVE_FORWARD;
-				return LIUVacuumEnvironment.ACTION_MOVE_FORWARD;
-			}
+			return state.stepTowardsPos(state.currentDestination);
 		}
 	}
 }
