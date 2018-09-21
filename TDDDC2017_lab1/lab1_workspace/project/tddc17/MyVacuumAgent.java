@@ -95,6 +95,7 @@ class MyAgentState {
 		ArrayList<Node> exploredSet = new ArrayList<Node>();
 		ArrayList<Node> exploringQueue = new ArrayList<Node>();
 		Node startNode = new Node(agent_x_position,agent_y_position, null);
+		Node finishNode = null;
 		boolean worldExplored = true;
 		exploringQueue.add(startNode);
 		while (!exploringQueue.isEmpty()) {
