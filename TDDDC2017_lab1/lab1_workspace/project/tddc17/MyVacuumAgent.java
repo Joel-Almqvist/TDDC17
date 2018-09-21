@@ -68,8 +68,11 @@ class MyAgentState {
 	public int agent_direction = EAST;
 	
 	// CUSTOM FIELDS
+	// The current path the agent is following
 	public ArrayList<Node> path = new ArrayList<Node>();
+	// The current node the agent is moving towards
 	public Node currentDestination = null;
+	// The agents home position
 	public Node home = null;
 
 	MyAgentState() {
@@ -80,27 +83,8 @@ class MyAgentState {
 		agent_last_action = ACTION_NONE;
 	}
 
-	public Node findNearestUnexploredPos() {
-		ArrayList<Node> unexploredPos = new ArrayList<Node>();
-		for (int c = 0; c < agent_x_position; c++) {
-			for (int r = 0; r < agent_y_position; r++) {
-				if (world[r][c] == UNKNOWN) {
-					unexploredPos.add(new Node(c, r, null));
-				}
-			}
-		}
-		Node closestPos = null;
-		int minDist = Integer.MAX_VALUE;
-		Node playerPos = new Node(agent_x_position, agent_y_position, null);
-		for (Node pos : unexploredPos) {
-			if (pos.distanceTo(playerPos) < minDist) {
-				closestPos = pos;
-			}
-		}
-		return closestPos;
-	}
-
-	/**
+	/** Generates a path of nodes from the agent to the closest unexplored node. If
+	 * no unexplored node is found a path towards the home position is returned. 
 	 * 
 	 * @return A list of nodes where the first element is the goal node which
 	 * is the closest unexplored node. The nodes generate a path from the agent's
@@ -162,7 +146,7 @@ class MyAgentState {
 
 		ArrayList<Node> path = new ArrayList<Node>();
 
-		//No reachable unexplored nodes found
+		// No reachable unexplored nodes found
 		if(worldExplored) {
 			if(!startNode.equals(home)) {
 				return generatePathHome();		
@@ -173,10 +157,9 @@ class MyAgentState {
 				path.add(startNode);
 				return path;
 			}
-			
-		
 		}
-		
+
+		// Save the found path as a list
 		while (true) {
 			path.add(finishNode);
 			if (finishNode.parent != null) {
@@ -250,6 +233,7 @@ class MyAgentState {
 		}
 
 		ArrayList<Node> path = new ArrayList<Node>();
+		// Add the found path in a list
 		while (true) {
 			path.add(finishNode);
 			if (finishNode.parent != null) {
