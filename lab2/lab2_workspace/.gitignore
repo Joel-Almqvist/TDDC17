@@ -1,4 +1,6 @@
 .metadata/
 .settings/
+bin/
+classes/
 /.metadata/
 *.class
