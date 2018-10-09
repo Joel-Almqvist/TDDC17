@@ -12,7 +12,8 @@ import world.GridPos;
 
 public class CustomGraphSearch implements SearchObject {
     
-    private HashSet<String> exploredPos;//changed from SearchNode
+    //changed from SearchNode, as we did not want to override the search function of SearchNode and we want to be able to compare new object with old ones. 
+    private HashSet<String> exploredPos;
     private NodeQueue frontier;
     protected ArrayList<SearchNode> path;
     private boolean insertFront;
@@ -42,7 +43,11 @@ public class CustomGraphSearch implements SearchObject {
         // Path will be empty until we find the goal.
         path = new ArrayList<SearchNode>();
         frontier.peekAtFront().setParent(null);
-
+        // If our goal is our current position
+        if(p.getGoalState().equals(p.getInitialState())){
+            path.add(new SearchNode(p.getInitialState()));
+            return path;        
+        }
         while (!frontier.isEmpty() && path.isEmpty()) { //If the entire world model is explored with no dust found, and no path to goal has been found, continue the search
             SearchNode current = frontier.peekAtFront();
             frontier.removeFirst();
