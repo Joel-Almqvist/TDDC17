@@ -1,0 +1,4 @@
+/home/TDDC17/sw/fdlog/fast-downward.py domain.pddl p02.pddl --search "astar(goalcount())" --log-file prob3-eg-gx-ff-help.txt --heuristic 'gc=goalcount()' --heuristic 'hff=ff()' --search 'eager_greedy([gc], preferred=[hff], boost=256)'
+
+/home/TDDC17/sw/fdlog/fast-downward.py domain.pddl p02.pddl --log-file exp123 --heuristic 'gc=goalcount()' --heuristic 'hff=ff()' --search 'eager_greedy([gc], preferred=[hff], boost=x)'
+

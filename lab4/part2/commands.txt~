@@ -1,0 +1,20 @@
+/home/TDDC17/sw/fdlog/fast-downward.py domain.pddl p02.pddl --search "astar(goalcount())" --log-file prob3-eg-gx-ff-help.txt --heuristic 'gc=goalcount()' --heuristic 'hff=ff()' --search 'eager_greedy([gc], preferred=[hff], boost=256)'
+
+
+/sw/jdk8/bin/java -jar /home/TDDC17/sw/fdvis/fdvis.jar /me/joeal360/TDDC17/2018/lab4/part2/prob2-eg-ff-herustic.txt
+
+1:
+/sw/jdk8/bin/java -jar /home/TDDC17/sw/fdvis/fdvis.jar /home/joeal360/TDDC17/2018/lab4/part2/prob3-eg-ff.txt
+
+/sw/jdk8/bin/java -jar /home/TDDC17/sw/fdvis/fdvis.jar /home/joeal360/TDDC17/2018/lab4/part2/prob3-gc-eg.txt
+
+2:
+
+/sw/jdk8/bin/java -jar /home/TDDC17/sw/fdvis/fdvis.jar /home/joeal360/TDDC17/2018/lab4/part2/
+
+/sw/jdk8/bin/java -jar /home/TDDC17/sw/fdvis/fdvis.jar /home/joeal360/TDDC17/2018/lab4/part2/prob2-eg-gc-ff-help.txt
+
+OWN PROBLEM****
+/home/TDDC17/sw/fdlog/fast-downward.py logistic.pddl log3-2.pddl~ --search "astar(goalcount())" --log-file prob3-eg-gx-ff-help.txt --heuristic 'gc=goalcount()' --heuristic 'hff=ff()' --search 'eager_greedy([gc], preferred=[hff], boost=256)'
+
+
