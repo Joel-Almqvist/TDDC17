@@ -10,7 +10,6 @@ public class TutorialController extends Controller {
 	DoubleFeature vx; /* Velocities */
 	DoubleFeature vy;
 	DoubleFeature angle; /* Angle */
-
     /* Example:
      * x.getValue() returns the vertical position of the rocket 
      */
@@ -38,8 +37,16 @@ public class TutorialController extends Controller {
 	}
 
     public void tick(int currentTime) {
-
-    	/* TODO: Insert your code here */
+    	// Cruise control
+    	
+    	if(vy.getValue() < 0.3 && vy.getValue() > -0.3 && angle.getValue() > -0.2 && angle.getValue() < 0.2) {
+		leftRocket.setBursting(true);
+		rightRocket.setBursting(true);
+    	}
+    	else {
+    		leftRocket.setBursting(false);
+    		rightRocket.setBursting(false);
+    	}
     	
     }
 
