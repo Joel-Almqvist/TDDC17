@@ -1,45 +1,13 @@
 public class StateAndReward {
 
 	
-	public final static String CORRECT_ANGLE_STATE = "CORRECT_ANGLE_STATE"; 
 	// NUMBER_OF_ANGLE_STATES is actually 2 lower than how many states we truly have
-	public final static int NUMBER_OF_ANGLE_STATES = 10;
+	public final static int NUMBER_OF_ANGLE_STATES = 20;
 	public final static String ANGLE_NAME_BASE = "ANGLE";
 	
 	/* State discretization function for the angle controller */
 	public static String getStateAngle(double angle, double vx, double vy) {
-		
-		String state;
-		
-		if(Math.abs(angle) < 0.1) {
-			state = CORRECT_ANGLE_STATE;
-		}
-		else {
-			state = ANGLE_NAME_BASE+discretize(angle, NUMBER_OF_ANGLE_STATES, -Math.PI, Math.PI);
-		}
-		System.out.println(state);
-		return state;
-		
-//		if(Math.abs(angle) < 0.1) {
-//			state = angleState3;
-//		}
-//		else if(angle > 0) {
-//			if((angle) < Math.PI/2) {
-//				state = angleState4;
-//			}
-//			else {
-//				state = angleState5;
-//			}
-//		}
-//		else {
-//			if(angle > -Math.PI/2) {
-//				state = angleState2;
-//			}
-//			else {
-//				state = angleState1;
-//			}
-//		}
-		
+		return ANGLE_NAME_BASE+discretize(angle, NUMBER_OF_ANGLE_STATES, -Math.PI, Math.PI);
 	}
 
 	/* Reward function for the angle controller */
@@ -47,15 +15,13 @@ public class StateAndReward {
 		//throw new OutOfMemoryError();
 		/* TODO: IMPLEMENT THIS FUNCTION */
 		
-		double reward = 1;
-		if(Math.abs(angle) < 0.1) {
-			reward*=(NUMBER_OF_ANGLE_STATES+10);
+		int stateNumber = discretize(Math.abs(angle), NUMBER_OF_ANGLE_STATES, 0, Math.PI);
+		if(stateNumber == 1) {
+			// Give significantly higher reward to the correct state
+			return NUMBER_OF_ANGLE_STATES*20;
 		}
-		else {
-			reward *= discretize(Math.abs(angle), NUMBER_OF_ANGLE_STATES, 0, Math.PI);
-		}
-		
-		return reward;
+		return (10*NUMBER_OF_ANGLE_STATES)/stateNumber;
+		//stateNumber = Math.abs(stateNumber - NUMBER_OF_ANGLE_STATES/2);
 	}
 
 	/* State discretization function for the full hover controller */

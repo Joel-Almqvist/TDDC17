@@ -24,7 +24,7 @@ public class QLearningController extends Controller {
 	RocketEngine middleEngine;
 	RocketEngine rightEngine;
 
-	final static int NUM_ACTIONS = 7; /* The takeAction function must be changed if this is modified */
+	final static int NUM_ACTIONS = 5; /* The takeAction function must be changed if this is modified */
 	
 	/* Keep track of the previous state and action */
 	String previous_state = null;
@@ -84,7 +84,29 @@ public class QLearningController extends Controller {
 
 	/* Performs the chosen action */
 	void performAction(int action) {
-
+		if(true || false) {
+		resetRockets();
+		switch(action) {
+		
+		case 0:
+			break;
+		case 1:
+			rightEngine.setBursting(true);
+			break;
+		case 2:
+			leftEngine.setBursting(true);
+		case 3:
+			middleEngine.setBursting(true);
+			break;
+		case 4:
+			leftEngine.setBursting(true);
+			rightEngine.setBursting(true);
+			middleEngine.setBursting(true);
+			break;
+		default:
+			break;
+		}
+		}
 		/* Fire zeh rockets! */
 		/* TODO: Remember to change NUM_ACTIONS constant to reflect the number of actions (including 0, no action) */
 		
@@ -123,6 +145,12 @@ public class QLearningController extends Controller {
 					Qtable.put(prev_stateaction, 0.0);
 				} 
 
+				double currentReward = StateAndReward.getRewardAngle(angle.getValue(), vx.getValue(), vy.getValue());
+				double oldReward = Qtable.get(prev_stateaction);
+				double QReward = oldReward + alpha(Ntable.get(prev_stateaction))*(
+						currentReward + GAMMA_DISCOUNT_FACTOR*getMaxActionQValue(new_state) - oldReward);
+				
+				Qtable.put(prev_stateaction, QReward);
 				
 				/* TODO: IMPLEMENT Q-UPDATE HERE! */
 				
@@ -136,6 +164,8 @@ public class QLearningController extends Controller {
 				/* Only print every 10th line to reduce spam */
 				print_counter++;
 				if (print_counter % 10 == 0) {
+					System.out.println(StateAndReward.getRewardAngle(angle.getValue(), vx.getValue(), vy.getValue()));
+					System.out.println(StateAndReward.getStateAngle(angle.getValue(), vx.getValue(), vy.getValue()));
 					System.out.println("ITERATION: " + iteration + " SENSORS: a=" + df.format(angle.getValue()) + " vx=" + df.format(vx.getValue()) + 
 							" vy=" + df.format(vy.getValue()) + " P_STATE: " + previous_state + " P_ACTION: " + previous_action + 
 							" P_REWARD: " + df.format(previous_reward) + " P_QVAL: " + df.format(Qtable.get(prev_stateaction)) + " Tested: "

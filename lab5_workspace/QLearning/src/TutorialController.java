@@ -39,7 +39,7 @@ public class TutorialController extends Controller {
     public void tick(int currentTime) {
     	// Cruise control
     	
-    	if(vy.getValue() < 0.3 && vy.getValue() > -0.3 && angle.getValue() > -0.2 && angle.getValue() < 0.2) {
+    	if(vy.getValue() > 0  && angle.getValue() > -0.1 && angle.getValue() < 0.1) {
 		leftRocket.setBursting(true);
 		rightRocket.setBursting(true);
     	}
