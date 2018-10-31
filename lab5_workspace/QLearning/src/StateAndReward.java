@@ -1,9 +1,21 @@
 public class StateAndReward {
 
 	
-	// NUMBER_OF_ANGLE_STATES is actually 2 lower than how many states we truly have
-	public final static int NUMBER_OF_ANGLE_STATES = 20;
-	public final static String ANGLE_NAME_BASE = "ANGLE";
+	public final static int NUMBER_OF_ANGLE_STATES = 15;
+	public final static double MAX_ANGLE_VALUE = Math.PI;
+	
+	public final static int NUMBER_OF_VY_STATES = 8;
+	public final static double MAX_VY_VALUE = 6;
+	
+	public final static int NUMBER_OF_VX_STATES = 10;
+	public final static double MAX_VX_VALUE = 5;
+	
+	// This marks the granularity of different rewards
+	public final static int NUMBER_OF_REWARD_INTERVALS = 10;
+	
+	public final static String ANGLE_NAME_BASE = "ANGLE_";
+	public final static String VY_NAME_BASE = " VY_";
+	public final static String VX_NAME_BASE = " VX_";
 	
 	/* State discretization function for the angle controller */
 	public static String getStateAngle(double angle, double vx, double vy) {
@@ -18,7 +30,7 @@ public class StateAndReward {
 		int stateNumber = discretize(Math.abs(angle), NUMBER_OF_ANGLE_STATES, 0, Math.PI);
 		if(stateNumber == 1) {
 			// Give significantly higher reward to the correct state
-			return NUMBER_OF_ANGLE_STATES*20;
+			return NUMBER_OF_ANGLE_STATES*10;
 		}
 		return (10*NUMBER_OF_ANGLE_STATES)/stateNumber;
 		//stateNumber = Math.abs(stateNumber - NUMBER_OF_ANGLE_STATES/2);
@@ -26,22 +38,22 @@ public class StateAndReward {
 
 	/* State discretization function for the full hover controller */
 	public static String getStateHover(double angle, double vx, double vy) {
-
-		/* TODO: IMPLEMENT THIS FUNCTION */
-
-		String state = "OneStateToRuleThemAll2";
-		
-		return state;
+		// Somewhat arbitrary choice of max/min speed of -5 and 5
+		int vyStates = discretize(vy, NUMBER_OF_VY_STATES, -MAX_VY_VALUE, MAX_VY_VALUE);
+		int vxStates = discretize(vx, NUMBER_OF_VX_STATES, -MAX_VX_VALUE, MAX_VX_VALUE);
+		int angleStates = discretize(angle, NUMBER_OF_ANGLE_STATES, -Math.PI, Math.PI);
+		//Add the separator "-" to guarantee a unique name for state+action combination
+		return ANGLE_NAME_BASE+angleStates+VY_NAME_BASE+vyStates+VX_NAME_BASE+vxStates+"-";
 	}
 
 	/* Reward function for the full hover controller */
 	public static double getRewardHover(double angle, double vx, double vy) {
-
-		/* TODO: IMPLEMENT THIS FUNCTION */
-		
-		double reward = 0;
-
+		double vyStates = discretize(Math.abs(vy), NUMBER_OF_VY_STATES, 0, MAX_VY_VALUE);
+		double vxStates = discretize(Math.abs(vx), NUMBER_OF_VX_STATES, 0, MAX_VX_VALUE);
+		double angleStates = discretize(Math.abs(angle), NUMBER_OF_ANGLE_STATES, 0, MAX_ANGLE_VALUE);
+		double reward = (1 - vyStates/NUMBER_OF_VY_STATES) + (1 - angleStates/NUMBER_OF_ANGLE_STATES) + (1 - vxStates/NUMBER_OF_VX_STATES); 
 		return reward;
+		
 	}
 
 	// ///////////////////////////////////////////////////////////

@@ -119,14 +119,15 @@ public class QLearningController extends Controller {
 		iteration++;
 		
 		if (!paused) {
-			String new_state = StateAndReward.getStateAngle(angle.getValue(), vx.getValue(), vy.getValue());
+			String new_state = StateAndReward.getStateHover(angle.getValue(), vx.getValue(), vy.getValue());
 
 			/* Repeat the chosen action for a while, hoping to reach a new state. This is a trick to speed up learning on this problem. */
 			action_counter++;
 			if (new_state.equals(previous_state) && action_counter < REPEAT_ACTION_MAX) {
 				return;
 			}
-			double previous_reward = StateAndReward.getRewardAngle(previous_angle, previous_vx, previous_vy);
+			//double previous_reward = StateAndReward.getRewardAngle(previous_angle, previous_vx, previous_vy);
+			double previous_reward = StateAndReward.getRewardHover(previous_angle, previous_vx, previous_vy);
 			action_counter = 0;
 
 			/* The agent is in a new state, do learning and action selection */
@@ -145,7 +146,8 @@ public class QLearningController extends Controller {
 					Qtable.put(prev_stateaction, 0.0);
 				} 
 
-				double currentReward = StateAndReward.getRewardAngle(angle.getValue(), vx.getValue(), vy.getValue());
+				//double currentReward = StateAndReward.getRewardAngle(angle.getValue(), vx.getValue(), vy.getValue());
+				double currentReward = StateAndReward.getRewardHover(angle.getValue(), vx.getValue(), vy.getValue());
 				double oldReward = Qtable.get(prev_stateaction);
 				double QReward = oldReward + alpha(Ntable.get(prev_stateaction))*(
 						currentReward + GAMMA_DISCOUNT_FACTOR*getMaxActionQValue(new_state) - oldReward);
@@ -164,8 +166,8 @@ public class QLearningController extends Controller {
 				/* Only print every 10th line to reduce spam */
 				print_counter++;
 				if (print_counter % 10 == 0) {
-					System.out.println(StateAndReward.getRewardAngle(angle.getValue(), vx.getValue(), vy.getValue()));
-					System.out.println(StateAndReward.getStateAngle(angle.getValue(), vx.getValue(), vy.getValue()));
+					System.out.println(new_state);
+					//System.out.println(StateAndReward.getStateAngle(angle.getValue(), vx.getValue(), vy.getValue()));
 					System.out.println("ITERATION: " + iteration + " SENSORS: a=" + df.format(angle.getValue()) + " vx=" + df.format(vx.getValue()) + 
 							" vy=" + df.format(vy.getValue()) + " P_STATE: " + previous_state + " P_ACTION: " + previous_action + 
 							" P_REWARD: " + df.format(previous_reward) + " P_QVAL: " + df.format(Qtable.get(prev_stateaction)) + " Tested: "
@@ -178,6 +180,14 @@ public class QLearningController extends Controller {
 				previous_action = action;
 			}
 			previous_state = new_state;
+		}
+		else {
+			print_counter++;
+			if(print_counter % 30 == 0) {
+				String new_state = StateAndReward.getStateHover(angle.getValue(), vx.getValue(), vy.getValue());
+				System.out.println(new_state);
+				System.out.println(StateAndReward.getRewardHover(angle.getValue(), vx.getValue(), vy.getValue()));
+			}
 		}
 
 	}
