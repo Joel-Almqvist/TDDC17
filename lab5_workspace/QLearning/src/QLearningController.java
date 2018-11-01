@@ -31,6 +31,8 @@ public class QLearningController extends Controller {
 	double previous_vx = 0;
 	double previous_vy = 0;
 	double previous_angle = 0;
+	double previous_x = 0;
+	double previous_y = 0;
 	int previous_action = 0; 
 	
 	/* The tables used by Q-learning */
@@ -68,7 +70,10 @@ public class QLearningController extends Controller {
 		previous_vy = vy.getValue();
 		previous_vx = vx.getValue();
 		previous_angle = angle.getValue();
-
+		previous_y = y.getValue();
+		previous_x = x.getValue();
+		
+		
 		leftEngine = (RocketEngine) cso.getObjectById("rocket_engine_left");
 		rightEngine = (RocketEngine) cso.getObjectById("rocket_engine_right");
 		middleEngine = (RocketEngine) cso.getObjectById("rocket_engine_middle");
@@ -119,7 +124,7 @@ public class QLearningController extends Controller {
 		iteration++;
 		
 		if (!paused) {
-			String new_state = StateAndReward.getStateHover(angle.getValue(), vx.getValue(), vy.getValue());
+			String new_state = StateAndReward.getStateHover(angle.getValue(), vx.getValue(), vy.getValue(), x.getValue(), y.getValue());
 
 			/* Repeat the chosen action for a while, hoping to reach a new state. This is a trick to speed up learning on this problem. */
 			action_counter++;
@@ -127,7 +132,7 @@ public class QLearningController extends Controller {
 				return;
 			}
 			//double previous_reward = StateAndReward.getRewardAngle(previous_angle, previous_vx, previous_vy);
-			double previous_reward = StateAndReward.getRewardHover(previous_angle, previous_vx, previous_vy);
+			double previous_reward = StateAndReward.getRewardHover(previous_angle, previous_vx, previous_vy, previous_x, previous_y);
 			action_counter = 0;
 
 			/* The agent is in a new state, do learning and action selection */
@@ -147,7 +152,8 @@ public class QLearningController extends Controller {
 				} 
 
 				//double currentReward = StateAndReward.getRewardAngle(angle.getValue(), vx.getValue(), vy.getValue());
-				double currentReward = StateAndReward.getRewardHover(angle.getValue(), vx.getValue(), vy.getValue());
+				double currentReward = StateAndReward.getRewardHover(angle.getValue(), vx.getValue(), vy.getValue(),
+						x.getValue(), y.getValue());
 				double oldReward = Qtable.get(prev_stateaction);
 				double QReward = oldReward + alpha(Ntable.get(prev_stateaction))*(
 						currentReward + GAMMA_DISCOUNT_FACTOR*getMaxActionQValue(new_state) - oldReward);
@@ -176,6 +182,8 @@ public class QLearningController extends Controller {
 				
 				previous_vy = vy.getValue();
 				previous_vx = vx.getValue();
+				previous_y = y.getValue();
+				previous_x = x.getValue();
 				previous_angle = angle.getValue();
 				previous_action = action;
 			}
@@ -183,10 +191,12 @@ public class QLearningController extends Controller {
 		}
 		else {
 			print_counter++;
-			if(print_counter % 30 == 0) {
-				String new_state = StateAndReward.getStateHover(angle.getValue(), vx.getValue(), vy.getValue());
+			if(print_counter % 50 == 0) {
+				String new_state = StateAndReward.getStateHover(angle.getValue(), vx.getValue(), vy.getValue(), x.getValue(), y.getValue());
 				System.out.println(new_state);
-				System.out.println(StateAndReward.getRewardHover(angle.getValue(), vx.getValue(), vy.getValue()));
+				System.out.println(StateAndReward.getRewardHover(angle.getValue(), vx.getValue(), vy.getValue(), x.getValue(), y.getValue()));
+				//System.out.println("x = "+x.getValue());
+				//System.out.println("y = "+y.getValue());
 			}
 		}
 

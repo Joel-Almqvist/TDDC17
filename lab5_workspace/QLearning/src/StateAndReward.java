@@ -10,12 +10,21 @@ public class StateAndReward {
 	public final static int NUMBER_OF_VX_STATES = 10;
 	public final static double MAX_VX_VALUE = 5;
 	
+	public final static int NUMBER_OF_X_STATES = 5;
+	public final static double MAX_X_VALUE = 1000;
+	
+	public final static int NUMBER_OF_Y_STATES = 6;
+	public final static double MAX_Y_VALUE = 1000;
+	
+	
 	// This marks the granularity of different rewards
 	public final static int NUMBER_OF_REWARD_INTERVALS = 10;
 	
 	public final static String ANGLE_NAME_BASE = "ANGLE_";
 	public final static String VY_NAME_BASE = " VY_";
 	public final static String VX_NAME_BASE = " VX_";
+	public final static String X_NAME_BASE = " X_";
+	public final static String Y_NAME_BASE = " Y_";
 	
 	/* State discretization function for the angle controller */
 	public static String getStateAngle(double angle, double vx, double vy) {
@@ -37,21 +46,32 @@ public class StateAndReward {
 	}
 
 	/* State discretization function for the full hover controller */
-	public static String getStateHover(double angle, double vx, double vy) {
+	public static String getStateHover(double angle, double vx, double vy, double x, double y) {
 		// Somewhat arbitrary choice of max/min speed of -5 and 5
 		int vyStates = discretize(vy, NUMBER_OF_VY_STATES, -MAX_VY_VALUE, MAX_VY_VALUE);
 		int vxStates = discretize(vx, NUMBER_OF_VX_STATES, -MAX_VX_VALUE, MAX_VX_VALUE);
 		int angleStates = discretize(angle, NUMBER_OF_ANGLE_STATES, -Math.PI, Math.PI);
+		int xStates = discretize(x, NUMBER_OF_X_STATES, -MAX_X_VALUE, MAX_X_VALUE);
+		int yStates = discretize(y, NUMBER_OF_Y_STATES, -MAX_Y_VALUE, MAX_Y_VALUE);
+		
+		
 		//Add the separator "-" to guarantee a unique name for state+action combination
-		return ANGLE_NAME_BASE+angleStates+VY_NAME_BASE+vyStates+VX_NAME_BASE+vxStates+"-";
+		return ANGLE_NAME_BASE+angleStates+VY_NAME_BASE+vyStates+VX_NAME_BASE+vxStates+X_NAME_BASE+xStates+
+				Y_NAME_BASE+yStates+"-";
 	}
 
 	/* Reward function for the full hover controller */
-	public static double getRewardHover(double angle, double vx, double vy) {
+	public static double getRewardHover(double angle, double vx, double vy, double x, double y) {
 		double vyStates = discretize(Math.abs(vy), NUMBER_OF_VY_STATES, 0, MAX_VY_VALUE);
 		double vxStates = discretize(Math.abs(vx), NUMBER_OF_VX_STATES, 0, MAX_VX_VALUE);
 		double angleStates = discretize(Math.abs(angle), NUMBER_OF_ANGLE_STATES, 0, MAX_ANGLE_VALUE);
-		double reward = (1 - vyStates/NUMBER_OF_VY_STATES) + (1 - angleStates/NUMBER_OF_ANGLE_STATES) + (1 - vxStates/NUMBER_OF_VX_STATES); 
+		
+		double xStates = discretize(Math.abs(x), NUMBER_OF_X_STATES, 0, MAX_X_VALUE);
+		double yStates = discretize(Math.abs(y), NUMBER_OF_Y_STATES, 0, MAX_Y_VALUE);
+		
+		
+		double reward = (1 - vyStates/NUMBER_OF_VY_STATES) + (1 - angleStates/NUMBER_OF_ANGLE_STATES) + (1 - vxStates/NUMBER_OF_VX_STATES)
+				+(1 - xStates/NUMBER_OF_X_STATES) + (1 - yStates/NUMBER_OF_Y_STATES); 
 		return reward;
 		
 	}
